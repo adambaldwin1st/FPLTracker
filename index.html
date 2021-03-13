@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FPL Tracker</title>
+<link rel="shortcut icon" href="logo.ico" type="image/x-icon">
+<script defer src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"></script>
+<script src="tabs.js"></script>
+<link rel="stylesheet" href="bulma/css/bulma.css"></link>
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.min.js" integrity="sha512-DZqqY3PiOvTP9HkjIWgjO6ouCbq+dxqWoJZ/Q+zPYNHmlnI2dQnbJ5bxAHpAMw+LXRm4D72EIRXzvcHQtE8/VQ==" crossorigin="anonymous"></script>
+<script>
+fetch('https://api.fantasypremierleaguetracker.com/league/name/26742').then(function (response) {
+  // The API call was successful!
+  return response.text();
+}).then(function (html) {
+  // This is the HTML from our response as a text string
+  document.getElementById('league_name').innerHTML = html.replace(/['"]+/g, '');
+}).catch(function (err) {
+  // There was an error
+  document.getElementById('league_name').innerHTML = err;
+});
+</script>
+</head>
+<body style="font-family: 'Helvetica Neue'">
+  <section class="hero is-primary is-bold">
+  <div class="hero-body">
+    <div class="container has-text-centered">
+        <h1 class="title is-1">
+          Fantasy Premier League Tracker
+        </h1>
+      </div>
+  </div>
+
+  <div class="hero-foot">
+  <nav class="tabs is-boxed is-fullwidth is-large">
+          <div class="container">
+            <ul>
+              <li class="tab is-active" onclick="openTab(event,'Standings')"><a >Standings</a></li>
+              <li class="tab" onclick="openTab(event,'Transfer Tracker')"><a >Transfer Tracker</a></li>
+              <li class="tab" onclick="openTab(event,'Head to Head')"><a >Head to Head</a></li>
+            </ul>
+          </div>
+        </nav>
+    </div>
+  </section>
+
+
+<!-- Standings Tab -->
+  <div class="container is-fluid section">
+      <div id="Standings" class="content-tab container">
+          <div id="app" class="content">
+            <h1 class="title is-2 has-text-centered" id="league_name"></h1>
+            <hr>
+            <br>
+            <div v-if="this.loading" class="loading">
+              <div class="spring-spinner">
+              <div class="spring-spinner-part top">
+                <div class="spring-spinner-rotator"></div>
+              </div>
+              <div class="spring-spinner-part bottom">
+                <div class="spring-spinner-rotator"></div>
+              </div>
+            </div>
+            </div>
+            <div v-else>
+            <table id="standings" class="table is-striped is-hoverable">
+              <thead>
+                <td>Rank</td>
+                <td>Team & Manager</td>
+                <td>Wins</td>
+                <td>Draws</td>
+                <td>Losses</td>
+                <td>+</td>
+                <td>Pts</td>
+              </thead>
+              <tbody>
+                <tr v-for="player in standings" :key="player.id">
+                  <td>{{ player.rank }}</td>
+                  <td><strong>{{ player.entry_name }}</strong> <br> {{ player.manager_name }}</td>
+                  <td>{{ player.matches_won }}</td>
+                  <td>{{ player.matches_drawn }}</td>
+                  <td>{{ player.matches_lost }}</td>
+                  <td>{{ player.points_for }}</td>
+                  <td>{{ player.total_points }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+            <br>
+          </div>
+
+        <script>
+
+        new Vue({
+          el: "#app",
+          data: {
+            standings: [],
+            loading: true,
+          },
+          created() {
+            this.getStandings();
+          },
+          methods: {
+            async getStandings() {
+                  try {
+                    const standings = await axios.get('https://api.fantasypremierleaguetracker.com/league/standings/26742');
+                    this.standings = standings.data;
+                    this.loading = false;
+                  } catch(err) {
+                    console.log(err); // handle errors here...
+                  }
+                },
+          }
+        })
+
+        </script>
+      </div>
+
+
+      <!-- Transfer Tracker -->
+      <div id="Transfer Tracker" class="content-tab" style="display:none">
+        <div class="content container">
+            <div id="transfertracker">
+              <h1 class="title is-2 has-text-centered">Transfer Tracker</h1>
+                <hr>
+                <h1 class="title is-3 has-text-centered">Gameweek</h1>
+                <div class="content has-text-centered">
+                <button @click="decrement" style="border: none; background-color: #fff"><i class="fa fa-fw fa-arrow-circle-left fa-2x" cursor="grab"></i></button>
+                <input class="gw" type="text" id="gw" ref="gw" v-model="gw"/>
+                <button @click="increment" style="border: none; background-color: #fff"><i class="fa fa-fw fa-arrow-circle-right fa-2x" cursor="grab"></i></button>
+              </div>
+              <br>
+              <div v-if="this.loading" class="loading" style="min-height: 200px">
+                <div class="spring-spinner">
+                <div class="spring-spinner-part top">
+                  <div class="spring-spinner-rotator"></div>
+                </div>
+                <div class="spring-spinner-part bottom">
+                  <div class="spring-spinner-rotator"></div>
+                </div>
+              </div>
+              </div>
+              <div v-else>
+              <table id="transactions" class="table is-striped is-hoverable">
+                <thead>
+                  <td>Processed</td>
+                  <td>Player Dropped</td>
+                  <td>Player Added</td>
+                  <td>Manager</td>
+                  <td>Type</td>
+                </thead>
+                <tbody>
+                  <tr v-for="entry in transactions" :key="entry.id">
+                    <td>{{ entry.added_time }}</td>
+                    <td>{{ entry.player_out_name }}</td>
+                    <td>{{ entry.player_in_name }}</td>
+                    <td>{{ entry.manager_name }}</td>
+                    <td>{{ entry.type }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              </div>
+              <br>
+            </div>
+
+          <script>
+          new Vue({
+            el: "#transfertracker",
+            data: {
+              transactions: [],
+              loading: false,
+              gw: null,
+              curr_gw: null
+            },
+            async mounted() {
+              this.loading = true;
+              await this.getGW();
+              this.getTransactions();
+            },
+            methods: {
+              async getGW() {
+                try {
+                  const gw = await axios.get('https://api.fantasypremierleaguetracker.com/current-week');
+                  this.gw = gw.data;
+                  curr_gw = gw.data;
+                } catch(err) {
+                  console.log(err);
+                }
+              },
+              async getTransactions() {
+                    try {
+                      this.loading = true;
+                      const transactions = await axios.get("https://api.fantasypremierleaguetracker.com/league/transactions/26742/" + this.$refs.gw.value);
+                      this.transactions = transactions.data;
+                      this.loading = false;
+                    } catch(err) {
+                      console.log(err);
+                    }
+                  },
+              increment: async function() {
+                if (this.gw + 1 <= curr_gw && this.loading == false)
+                {
+                  this.gw++;
+                  this.getTransactions();
+                }
+              },
+              decrement: async function() {
+                if (this.gw - 1 > 0 && this.loading == false)
+                {
+                  this.gw--;
+                  this.getTransactions();
+                }
+              },
+            }
+          })
+
+          </script>
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+      <!-- Head to Head -->
+      <div id="Head to Head" class="content-tab" style="display:none">
+        <div id="headtohead">
+          <div class="content container">
+            <h1 class="title is-2 has-text-centered">Head to Head</h1>
+            <p class="has-text-centered">This section is in development</p>
+            <hr>
+            <div v-if="modal" class="modal is-active">
+              <div class="modal-background"></div>
+              <div class="modal-card">
+                <header class="modal-card-head">
+                  <h3 class="modal-card-title" style="margin-bottom: 0px;">{{ displayedPlayer.first_name }} {{ displayedPlayer.last_name }}</h3>
+                  <button class="delete" aria-label="close" v-on:click="closeModal()"></button>
+                </header>
+                <section class="modal-card-body">
+                  <table>
+                    <thead>
+                      <th>Statistic</th>
+                      <th></th>
+                      <th>Pts</th>
+                    </thead>
+                    <tbody v-for="stat in displayedPlayer.stats">
+                      <tr>
+                        <td>
+                          {{ stat.name }}
+                        </td>
+                        <td>
+                          {{ stat.value }}
+                        </td>
+                        <td>
+                          {{ stat.points }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </section>
+                <footer class="modal-card-foot">
+                </footer>
+              </div>
+            </div>
+            </div>
+                <div class="columns">
+                  <div class="column">
+                    <div v-if="this.loading_one" class="loading">
+                      <div class="spring-spinner">
+                      <div class="spring-spinner-part top">
+                        <div class="spring-spinner-rotator"></div>
+                      </div>
+                      <div class="spring-spinner-part bottom">
+                        <div class="spring-spinner-rotator"></div>
+                      </div>
+                    </div>
+                    </div>
+                    <div v-else>
+                    <div class="field has-text-centered">
+                      <div class="control">
+                        <div class="select is-large">
+                          <select v-model="player_one" @change="refreshPoints(1)">
+                            <option value="undefined" disabled>-- Select Team --</option>
+                            <option v-for="entry in managers" :value="entry.id">{{ entry.team_name }}</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <h1 class="title is-2 has-text-centered">{{ player_one_points[0] }}</h1>
+                    <div id="player_1" style="min-height: 330px; background-image: url('pitch.png'); background-repeat: no-repeat; background-position: center 0; padding-top: 15px;">
+                      <div class="columns is-centered is-variable is-8">
+                        <div v-for="keeper in goalkeeper_one">
+                          <div class="column has-text-centered" v-on:click="displayPlayer(keeper.id)" style="cursor: grab">
+                            <figure class="image is-64x64" style="margin-bottom: 17px; margin-left: 18px;"><img :src="keeper.team_crest"></figure>
+                            <span class="tag is-dark is-centered is-medium" style="opacity: 0.8; width: 110px;">{{ keeper.name }}</span>
+                            <br>
+                            <div v-if="keeper.played">
+                              <span class="tag is-primary is-centered is-medium" style="width: 110px;">{{ keeper.points }}</span>
+                            </div>
+                            <div v-else>
+                              <span class="tag is-primary is-centered is-medium has-text-weight-bold" style="width: 110px;">{{ keeper.opponent }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="columns is-centered is-variable is-8">
+                        <div v-for="player in defenders_one">
+                          <div class="column has-text-centered" v-on:click="displayPlayer(player.id)" style="cursor: grab">
+                            <figure class="image is-64x64" style="margin-bottom: 17px; margin-left: 18px;"><img :src="player.team_crest"></figure>
+                            <span class="tag is-dark is-centered is-medium" style="opacity: 0.8; width: 110px;">{{ player.name }}</span>
+                            <br>
+                            <div v-if="player.played">
+                              <span class="tag is-primary is-centered is-medium" style="width: 110px;">{{ player.points }}</span>
+                            </div>
+                            <div v-else>
+                              <span class="tag is-primary is-centered is-medium has-text-weight-bold" style="width: 110px;">{{ player.opponent }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="columns is-centered is-variable is-8">
+                        <div v-for="player in midfielders_one">
+                          <div class="column has-text-centered" v-on:click="displayPlayer(player.id)" style="cursor: grab">
+                            <figure class="image is-64x64" style="margin-bottom: 17px; margin-left: 18px;"><img :src="player.team_crest"></figure>
+                            <span class="tag is-dark is-centered is-medium" style="opacity: 0.8; width: 110px;">{{ player.name }}</span>
+                            <br>
+                            <div v-if="player.played">
+                              <span class="tag is-primary is-centered is-medium" style="width: 110px;">{{ player.points }}</span>
+                            </div>
+                            <div v-else>
+                              <span class="tag is-primary is-centered is-medium has-text-weight-bold" style="width: 110px;">{{ player.opponent }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="columns is-centered is-variable is-8">
+                        <div v-for="player in forwards_one">
+                          <div class="column has-text-centered" v-on:click="displayPlayer(player.id)" style="cursor: grab">
+                            <figure class="image is-64x64" style="margin-bottom: 17px; margin-left: 18px;"><img :src="player.team_crest"></figure>
+                            <span class="tag is-dark is-centered is-medium" style="opacity: 0.8; width: 110px; margin-bottom: 0px">{{ player.name }}</span>
+                            <br>
+                            <div v-if="player.played">
+                              <span class="tag is-primary is-centered is-medium" style="width: 110px;">{{ player.points }}</span>
+                            </div>
+                            <div v-else>
+                              <span class="tag is-primary is-centered is-medium has-text-weight-bold" style="width: 110px;">{{ player.opponent }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <br>
+                      <hr>
+                      <div class="columns is-centered is-variable is-8">
+                        <div v-for="player in subs_one">
+                          <div class="column has-text-centered" v-on:click="displayPlayer(player.id)" style="cursor: grab">
+                            <figure class="image is-64x64" style="margin-bottom: 17px; margin-left: 18px;"><img :src="player.team_crest"></figure>
+                            <span class="tag is-dark is-centered is-medium" style="opacity: 0.8; width: 110px;">{{ player.name }}</span>
+                            <br>
+                            <div v-if="player.played">
+                              <span class="tag is-primary is-centered is-medium" style="width: 110px;">{{ player.points }}</span>
+                            </div>
+                            <div v-else>
+                              <span class="tag is-primary is-centered is-medium has-text-weight-bold" style="width: 110px;">{{ player.opponent }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+                  </div>
+                  <div class="column">
+                    <div v-if="this.loading_two" class="loading">
+                      <div class="spring-spinner">
+                      <div class="spring-spinner-part top">
+                        <div class="spring-spinner-rotator"></div>
+                      </div>
+                      <div class="spring-spinner-part bottom">
+                        <div class="spring-spinner-rotator"></div>
+                      </div>
+                    </div>
+                    </div>
+                    <div v-else>
+                      <div class="field has-text-centered">
+                        <div class="control">
+                          <div class="select is-large">
+                            <select v-model="player_two" @change="refreshPoints(2)">
+                              <option value="undefined" disabled>-- Select Team --</option>
+                              <option v-for="entry in managers" :value="entry.id">{{ entry.team_name }}</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                      <h1 class="title is-2 has-text-centered">{{ player_two_points[0] }}</h1>
+                    <div id="player_2" style="min-height: 330px; background-image: url('pitch.png'); background-repeat: no-repeat; background-position: center 0; padding-top: 15px;">
+                      <div class="columns is-centered is-variable is-8">
+                        <div v-for="keeper in goalkeeper_two">
+                          <div class="column has-text-centered" v-on:click="displayPlayer(keeper.id)" style="cursor: grab">
+                            <figure class="image is-64x64" style="margin-bottom: 17px; margin-left: 18px;"><img :src="keeper.team_crest"></figure>
+                            <span class="tag is-dark is-centered is-medium" style="opacity: 0.8; width: 110px;">{{ keeper.name }}</span>
+                            <br>
+                            <div v-if="keeper.played">
+                              <span class="tag is-primary is-centered is-medium" style="width: 110px;">{{ keeper.points }}</span>
+                            </div>
+                            <div v-else>
+                              <span class="tag is-primary is-centered is-medium has-text-weight-bold" style="width: 110px;">{{ keeper.opponent }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="columns is-centered is-variable is-8">
+                        <div v-for="player in defenders_two">
+                          <div class="column has-text-centered" v-on:click="displayPlayer(player.id)" style="cursor: grab">
+                            <figure class="image is-64x64" style="margin-bottom: 17px; margin-left: 18px;"><img :src="player.team_crest"></figure>
+                            <span class="tag is-dark is-centered is-medium" style="opacity: 0.8; width: 110px;">{{ player.name }}</span>
+                            <br>
+                            <div v-if="player.played">
+                              <span class="tag is-primary is-centered is-medium" style="width: 110px;">{{ player.points }}</span>
+                            </div>
+                            <div v-else>
+                              <span class="tag is-primary is-centered is-medium has-text-weight-bold" style="width: 110px;">{{ player.opponent }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="columns is-centered is-variable is-8">
+                        <div v-for="player in midfielders_two">
+                          <div class="column has-text-centered" v-on:click="displayPlayer(player.id)" style="cursor: grab">
+                            <figure class="image is-64x64" style="margin-bottom: 17px; margin-left: 18px;"><img :src="player.team_crest"></figure>
+                            <span class="tag is-dark is-centered is-medium" style="opacity: 0.8; width: 110px;">{{ player.name }}</span>
+                            <br>
+                            <div v-if="player.played">
+                              <span class="tag is-primary is-centered is-medium" style="width: 110px;">{{ player.points }}</span>
+                            </div>
+                            <div v-else>
+                              <span class="tag is-primary is-centered is-medium has-text-weight-bold" style="width: 110px;">{{ player.opponent }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="columns is-centered is-variable is-8">
+                        <div v-for="player in forwards_two">
+                          <div class="column has-text-centered" v-on:click="displayPlayer(player.id)" style="cursor: grab">
+                            <figure class="image is-64x64" style="margin-bottom: 17px; margin-left: 18px;"><img :src="player.team_crest"></figure>
+                            <span class="tag is-dark is-centered is-medium" style="opacity: 0.8; width: 110px; margin-bottom: 0px">{{ player.name }}</span>
+                            <br>
+                            <div v-if="player.played">
+                              <span class="tag is-primary is-centered is-medium" style="width: 110px;">{{ player.points }}</span>
+                            </div>
+                            <div v-else>
+                              <span class="tag is-primary is-centered is-medium has-text-weight-bold" style="width: 110px;">{{ player.opponent }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <br>
+                      <hr>
+                      <div class="columns is-centered is-variable is-8">
+                        <div v-for="player in subs_two">
+                          <div class="column has-text-centered" v-on:click="displayPlayer(player.id)" style="cursor: grab">
+                            <figure class="image is-64x64" style="margin-bottom: 17px; margin-left: 17px;"><img :src="player.team_crest"></figure>
+                            <span class="tag is-dark is-centered is-medium" style="opacity: 0.8; width: 110px;">{{ player.name }}</span>
+                            <br>
+                            <div v-if="player.played">
+                              <span class="tag is-primary is-centered is-medium" style="width: 110px;">{{ player.points }}</span>
+                            </div>
+                            <div v-else>
+                              <span class="tag is-primary is-centered is-medium has-text-weight-bold" style="width: 110px;">{{ player.opponent }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                    </div>
+                  </div>
+                </div>
+        </div>
+      </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: "#headtohead",
+      data: {
+        loading_one: null,
+        loading_two: null,
+        curr_gw: null,
+        goalkeeper_one: [],
+        goalkeeper_two: [],
+        defenders_one: [],
+        defenders_two: [],
+        midfielders_one: [],
+        midfielders_two: [],
+        forwards_one: [],
+        forwards_two: [],
+        subs_one: [],
+        subs_two: [],
+        player_one: 99687,
+        player_one_points: [],
+        player_two: null,
+        player_two_points: [],
+        managers: null,
+        displayedPlayer: null,
+        modal: null
+      },
+      create() {
+        this.loading_one = true;
+        this.loading_two = true;
+      },
+      async mounted() {
+        this.loading_one = true;
+        this.loading_two = true;
+        await this.getManagers();
+        await this.getGW();
+        this.getPoints(this.goalkeeper_one, this.defenders_one, this.midfielders_one, this.forwards_one, this.subs_one, this.player_one, this.curr_gw, this.player_one_points);
+        await this.getOpp(this.player_one)
+        this.loading_two = false;
+      },
+      methods: {
+        async getGW() {
+          try {
+            const gw = await axios.get('https://api.fantasypremierleaguetracker.com/current-week');
+            this.gw = gw.data;
+            this.curr_gw = gw.data;
+          } catch(err) {
+            console.log(err);
+          }
+        },
+        async refreshPoints(playerNum) {
+          if (playerNum == 1) {
+            this.loading_one = true;
+            this.goalkeeper_one = [];
+            this.defenders_one = [];
+            this.midfielders_one = [];
+            this.forwards_one = [];
+            this.subs_one = [];
+            this.loading_two = true;
+            this.goalkeeper_two = [];
+            this.defenders_two = [];
+            this.midfielders_two = [];
+            this.forwards_two = [];
+            this.subs_two = [];
+            this.player_one_points = [];
+            this.player_two_points = [];
+            this.getOpp(this.player_one);
+            await this.getPoints(this.goalkeeper_one, this.defenders_one, this.midfielders_one, this.forwards_one, this.subs_one, this.player_one, this.curr_gw, this.player_one_points);
+            this.loading_two = false;
+          }
+          else {
+            this.loading_two = true;
+            this.goalkeeper_two = [];
+            this.defenders_two = [];
+            this.midfielders_two = [];
+            this.forwards_two = [];
+            this.subs_two = [];
+            this.player_two_points = [];
+            await this.getPoints(this.goalkeeper_two, this.defenders_two, this.midfielders_two, this.forwards_two, this.subs_two, this.player_two, this.curr_gw, this.player_two_points);
+            this.loading_two = false;
+          }
+        },
+        async getPoints(goalkeeper, defenders, midfielders, forwards, subs, player, gw, points) {
+              try {
+                points[0] = 0;
+                const lineup = await axios.get("https://api.fantasypremierleaguetracker.com/league/" + player + '/' + gw);
+                goalkeeper.push(lineup.data[0]);
+                points[0] = points[0] + lineup.data[0].points;
+                for (i = 1; i < 15; i++) {
+                  if (lineup.data[i].role == 2 && lineup.data[i].position < 12) {
+                    defenders.push(lineup.data[i]);
+                    points[0] = points[0] + lineup.data[i].points;
+                  }
+                  else if (lineup.data[i].role == 3 && lineup.data[i].position < 12) {
+                    midfielders.push(lineup.data[i]);
+                    points[0] = points[0] + lineup.data[i].points;
+                  }
+                  else if (lineup.data[i].role == 4 && lineup.data[i].position < 12) {
+                    forwards.push(lineup.data[i]);
+                    points[0] = points[0] + lineup.data[i].points;
+                  }
+                }
+                subs.push(lineup.data[11]);
+                subs.push(lineup.data[12]);
+                subs.push(lineup.data[13]);
+                subs.push(lineup.data[14]);
+                this.loading_one = false;
+              } catch(err) {
+                console.log(err);
+              }
+            },
+            async getOpp(player) {
+              const opponent = await axios.get('https://api.fantasypremierleaguetracker.com/league/26742/' + player + '/opponent');
+              this.player_two = opponent.data;
+              await this.getPoints(this.goalkeeper_two, this.defenders_two, this.midfielders_two, this.forwards_two, this.subs_two, this.player_two, this.curr_gw, this.player_two_points);
+            },
+            async getManagers() {
+              const managers = await axios.get('https://api.fantasypremierleaguetracker.com/league/26742/managers');
+              this.managers = managers.data;
+            },
+            async displayPlayer(playerID) {
+              const player = await axios.get('https://api.fantasypremierleaguetracker.com/player/' + playerID + '/' + curr_gw);
+              this.displayedPlayer = player.data;
+              this.modal = true;
+            },
+            async closeModal() {
+              this.modal = false;
+            }
+      }
+    })
+
+    </script>
+
+
+<!-- Footer -->
+  <footer class="footer">
+    <hr>
+    <div class="content has-text-centered">
+      <p>Built with Vue.js and Axios | Served on NGINX and AWS | API built with Flask</p>
+    </div>
+  </footer>
+
+</body>
+</html>
