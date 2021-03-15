@@ -1,0 +1,305 @@
+body, html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Helvetica Neue';
+}
+
+.parallax {
+  /* The image used */
+  background-image: url('images/Pylons.jpg');
+
+  /* Full height */
+  height: 96%;
+  width: 100%;
+
+  /* Create the parallax scrolling effect */
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* Turn off parallax scrolling for tablets and phones. Increase the pixels if needed */
+@media only screen and (max-device-width: 1366px) {
+  .parallax {
+    background-attachment: scroll;
+  }
+}
+
+ul {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+}
+
+  ul.topnav {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #2B2B2B;
+  }
+
+  ul.topnav li {
+    float: left;
+  }
+
+  ul.topnav li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+  }
+
+  .topnav-centered a {
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: none;
+  }
+
+  ul.topnav li a:hover:not(.active) {
+    background-color: #404040;
+    color: white;
+  }
+
+  ul.topnav li a.active {
+    background-color: #3f72af;
+    color: white;
+  }
+
+  @media screen and (max-width: 600px) {
+    ul.topnav li.right,
+    ul.topnav li {float: none;}
+  }
+
+  .center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-container {
+  max-width: 50%;
+  margin: auto;
+  padding: 30px;
+}
+
+.section-container-2 {
+  width: 100%;
+  margin: auto;
+  background-color: #f2efe1;
+}
+
+.section-header {
+  text-align: center;
+  font-weight: 100;
+  font-style: italic;
+  font-size: 50px;
+  color: #142850;
+}
+
+.section-subheader {
+  text-align: center;
+  font-weight: 100;
+  font-size: 25px;
+  color: grey;
+}
+
+.profile-header {
+  color: #3f72af;
+  font-weight: 300;
+  font-size: 35px;
+}
+
+.profile-content {
+  font-weight: 100;
+  font-size: 20px;
+}
+
+.info-label {
+  font-weight: 400;
+  font-size: 25px;
+}
+
+.info-content {
+  font-weight: 100;
+  font-size: 20px;
+}
+
+.exp-header {
+  color: #3f72af;
+  font-weight: 300;
+  font-size: 35px;
+  margin-bottom: 25px;
+}
+
+.school-name {
+  font-weight: 500;
+  font-size: 25px;
+  display: inline;
+}
+
+.degree {
+  font-weight: 500;
+  font-size: 15px;
+  padding-left: 10%;
+  margin-top: 32px;
+  display: inline;
+}
+
+.exp-content {
+  font-weight: 200;
+  font-size: 15px;
+  padding-left: 15px;
+  margin-top: 0px;
+}
+
+.location {
+  font-weight: 200;
+  font-size: 15px;
+  padding-left: 15px;
+  margin-top: 0px;
+  color: #3f72af;
+  font-weight: 400;
+}
+
+.minor {
+  font-weight: 500;
+  font-size: 15px;
+  padding-left: 15px;
+  margin-top: 32px;
+}
+
+.involve-header {
+  font-weight: 500;
+  font-size: 25px;
+}
+
+hr.thin {
+height: 1px;
+border: 0;
+color: #333;
+background-color: #333;
+opacity: 0.2;
+margin-bottom: 0px;
+}
+
+.grid-container {
+  display: grid;
+  height: auto;
+  align-content: start;
+  grid-template-columns: 25% 50% 25%;
+  justify-content: space-around;
+}
+
+.grid-container-2 {
+  display: grid;
+  height: auto;
+  align-content: start;
+  grid-template-columns: 25% 75%;
+  justify-content: space-around;
+}
+
+.grid-container-2 > div {
+  text-align: left;
+  padding: 20px 0;
+  font-size: 30px;
+}
+
+.grid-container > div {
+  text-align: left;
+  padding: 20px 0;
+  font-size: 30px;
+}
+
+.grid-container > div > p {
+  margin-bottom: 0px;
+}
+
+.contact-grid {
+  display: grid;
+  height: auto;
+  align-content: start;
+  grid-template-columns: auto auto auto;
+  justify-content: space-evenly;
+}
+
+.contact-grid > p {
+  color: #b4b3b3;
+  font-weight: 100;
+  font-size: 15px;
+}
+
+.contact-grid > p > i {
+  color: #b4b3b3
+}
+
+.contact-grid > p > a {
+  color: #b4b3b3
+}
+
+.phone {
+  color: #b4b3b3;
+  font-weight: 100;
+  font-size: 15px;
+  text-align: center;
+}
+
+.resume-header {
+  color: #b4b3b3;
+  font-weight: 400;
+  font-size: 15px;
+  text-align: center;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  padding: 8px;
+  text-align: center;
+}
+
+.btn {
+  background-color: #009994;
+  border: none;
+  color: white;
+  padding: 12px 30px;
+  cursor: pointer;
+  font-size: 20px;
+  border-radius: 15px
+}
+
+.btn:hover {
+  background-color: grey;
+}
+
+.center-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#standings table {
+  border-collapse: collapse;
+}
+#standings tbody tr:hover  {
+  background-color:#f5f5f5;
+}
+
+#standings tbody thead:hover  {
+  background-color: #ddd !important;
+}
+
+#standings thead {
+  background-color: #ddd;
+}
+
+#standings tr {
+  border-bottom: 1px solid #ddd;
+}
