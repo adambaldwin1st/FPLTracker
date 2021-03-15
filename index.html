@@ -10,18 +10,6 @@
 <link rel="stylesheet" href="bulma/css/bulma.css"></link>
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.min.js" integrity="sha512-DZqqY3PiOvTP9HkjIWgjO6ouCbq+dxqWoJZ/Q+zPYNHmlnI2dQnbJ5bxAHpAMw+LXRm4D72EIRXzvcHQtE8/VQ==" crossorigin="anonymous"></script>
-<script>
-fetch('https://api.fantasypremierleaguetracker.com/league/name/26742').then(function (response) {
-  // The API call was successful!
-  return response.text();
-}).then(function (html) {
-  // This is the HTML from our response as a text string
-  document.getElementById('league_name').innerHTML = html.replace(/['"]+/g, '');
-}).catch(function (err) {
-  // There was an error
-  document.getElementById('league_name').innerHTML = err;
-});
-</script>
 </head>
 <body style="font-family: 'Helvetica Neue'">
   <section class="hero is-primary is-bold">
@@ -50,8 +38,8 @@ fetch('https://api.fantasypremierleaguetracker.com/league/name/26742').then(func
 <!-- Standings Tab -->
   <div class="container is-fluid section">
       <div id="Standings" class="content-tab container">
-          <div id="app" class="content">
-            <h1 class="title is-2 has-text-centered" id="league_name"></h1>
+          <div id="standings" class="content">
+            <h1 class="title is-2 has-text-centered">{{ this.league_name }}</h1>
             <hr>
             <br>
             <div v-if="this.loading" class="loading">
@@ -94,12 +82,14 @@ fetch('https://api.fantasypremierleaguetracker.com/league/name/26742').then(func
         <script>
 
         new Vue({
-          el: "#app",
+          el: "#standings",
           data: {
+            league_name: null,
             standings: [],
             loading: true,
           },
           created() {
+            this.getName();
             this.getStandings();
           },
           methods: {
@@ -112,6 +102,14 @@ fetch('https://api.fantasypremierleaguetracker.com/league/name/26742').then(func
                     console.log(err); // handle errors here...
                   }
                 },
+            async getName() {
+              try {
+                const name = await axios.get('https://api.fantasypremierleaguetracker.com/league/name/26742');
+                this.league_name = name.data;
+              } catch(err) {
+                console.log(err);
+              }
+            }
           }
         })
 
@@ -128,7 +126,7 @@ fetch('https://api.fantasypremierleaguetracker.com/league/name/26742').then(func
                 <h1 class="title is-3 has-text-centered">Gameweek</h1>
                 <div class="content has-text-centered">
                 <button @click="decrement" style="border: none; background-color: #fff"><i class="fa fa-fw fa-arrow-circle-left fa-2x" cursor="grab"></i></button>
-                <input class="gw" type="text" id="gw" ref="gw" v-model="gw"/>
+                <span class="gw">{{ this.gw }}</span>
                 <button @click="increment" style="border: none; background-color: #fff"><i class="fa fa-fw fa-arrow-circle-right fa-2x" cursor="grab"></i></button>
               </div>
               <br>
@@ -174,6 +172,12 @@ fetch('https://api.fantasypremierleaguetracker.com/league/name/26742').then(func
               gw: null,
               curr_gw: null
             },
+            watch: {
+              gw: function () {
+                console.log(this.gw);
+                this.getTransactions();
+              }
+            },
             async mounted() {
               this.loading = true;
               await this.getGW();
@@ -192,7 +196,7 @@ fetch('https://api.fantasypremierleaguetracker.com/league/name/26742').then(func
               async getTransactions() {
                     try {
                       this.loading = true;
-                      const transactions = await axios.get("https://api.fantasypremierleaguetracker.com/league/transactions/26742/" + this.$refs.gw.value);
+                      const transactions = await axios.get("https://api.fantasypremierleaguetracker.com/league/transactions/26742/" + this.gw);
                       this.transactions = transactions.data;
                       this.loading = false;
                     } catch(err) {
@@ -203,14 +207,12 @@ fetch('https://api.fantasypremierleaguetracker.com/league/name/26742').then(func
                 if (this.gw + 1 <= curr_gw && this.loading == false)
                 {
                   this.gw++;
-                  this.getTransactions();
                 }
               },
               decrement: async function() {
                 if (this.gw - 1 > 0 && this.loading == false)
                 {
                   this.gw--;
-                  this.getTransactions();
                 }
               },
             }
