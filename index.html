@@ -568,6 +568,7 @@
               try {
                 points[0] = 0;
                 const lineup = await axios.get("https://api.fantasypremierleaguetracker.com/league/" + player + '/' + gw);
+                //const lineup = await axios.get("http://localhost:5000/league/" + player + '/' + gw);
                 goalkeeper.push(lineup.data[0]);
                 points[0] = points[0] + lineup.data[0].points;
                 for (i = 1; i < 15; i++) {
