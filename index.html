@@ -95,7 +95,7 @@
           methods: {
             async getStandings() {
                   try {
-                    const standings = await axios.get('https://api.fantasypremierleaguetracker.com/league/standings/26742');
+                    const standings = await axios.get('https://api.fantasypremierleaguetracker.com/league/standings/75594');
                     this.standings = standings.data;
                     this.loading = false;
                   } catch(err) {
@@ -104,7 +104,7 @@
                 },
             async getName() {
               try {
-                const name = await axios.get('https://api.fantasypremierleaguetracker.com/league/name/26742');
+                const name = await axios.get('https://api.fantasypremierleaguetracker.com/league/name/75594');
                 this.league_name = name.data;
               } catch(err) {
                 console.log(err);
@@ -195,7 +195,7 @@
               async getTransactions() {
                     try {
                       this.loading = true;
-                      const transactions = await axios.get("https://api.fantasypremierleaguetracker.com/league/transactions/26742/" + this.gw);
+                      const transactions = await axios.get("https://api.fantasypremierleaguetracker.com/league/transactions/75594/" + this.gw);
                       this.transactions = transactions.data;
                       this.loading = false;
                     } catch(err) {
@@ -595,12 +595,12 @@
               }
             },
             async getOpp(player) {
-              const opponent = await axios.get('https://api.fantasypremierleaguetracker.com/league/26742/' + player + '/opponent');
+              const opponent = await axios.get('https://api.fantasypremierleaguetracker.com/league/75594/' + player + '/opponent');
               this.player_two = opponent.data;
               await this.getPoints(this.goalkeeper_two, this.defenders_two, this.midfielders_two, this.forwards_two, this.subs_two, this.player_two, this.curr_gw, this.player_two_points);
             },
             async getManagers() {
-              const managers = await axios.get('https://api.fantasypremierleaguetracker.com/league/26742/managers');
+              const managers = await axios.get('https://api.fantasypremierleaguetracker.com/league/75594/managers');
               this.managers = managers.data;
             },
             async displayPlayer(playerID) {
